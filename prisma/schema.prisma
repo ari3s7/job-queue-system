@@ -28,9 +28,22 @@ model Job {
   attempts  Int @default(0)
   maxAttempts  Int  @default(3)
   idempotencyKey   String?  @unique
+
+  logs JobLog[]
+
   createdAt  DateTime @default(now())
   updatedAt   DateTime @updatedAt 
   processedAt   DateTime?
   failedAt   DateTime?
   error   String?
+}
+
+model JobLog {
+  id   String    @id    @default(uuid())
+  jobId   String
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  attempt  Int
+  status   JobStatus
+  message  String?
+  createdAt   DateTime @default(now())
 }
