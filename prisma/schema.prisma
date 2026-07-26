@@ -23,6 +23,7 @@ enum JobStatus {
 model Job {
   id    String  @id @default(uuid())
   type  String
+  payload Json
   status  JobStatus @default(PENDING)
   priority  Int @default(0)
   attempts  Int @default(0)
@@ -46,4 +47,12 @@ model JobLog {
   status   JobStatus
   message  String?
   createdAt   DateTime @default(now())
+}
+
+model RateLimitBucket {
+  id  String @id @default(uuid())
+  provider   String
+  windowStart   DateTime
+  count  Int @default(0)
+  @@unique([provider, windowStart])
 }
