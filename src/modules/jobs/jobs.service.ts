@@ -1,0 +1,24 @@
+import { prisma } from "../../lib/prisma.js";
+import type { CreateJobInput } from "./jobs.validator.js";
+
+export async function createJob(input: CreateJobInput) {
+
+    if(input.idempotencyKey){
+        const existing =  await prisma.job.findUnique({
+        where: {
+            idempotencyKey: input.idempotencyKey,
+        }
+    })
+    if(existing){
+        return existing;
+    }
+    }
+    const job = await prisma.job.create({
+        data: {
+            type: input.type,
+            payload:input.payload,
+            idempotencyKey: input.idempotencyKey ?? null,
+        }
+    })
+    return job;
+}
