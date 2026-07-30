@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import { jobsQueue } from "./jobs.queue.js";
 import type { CreateJobInput } from "./jobs.validator.js";
 
 export async function createJob(input: CreateJobInput) {
@@ -20,5 +21,6 @@ export async function createJob(input: CreateJobInput) {
             idempotencyKey: input.idempotencyKey ?? null,
         }
     })
+    await jobsQueue.add("process-job", {jobId: job.id})
     return job;
 }
