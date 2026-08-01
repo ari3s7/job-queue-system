@@ -17,10 +17,16 @@ export async function createJob(input: CreateJobInput) {
     const job = await prisma.job.create({
         data: {
             type: input.type,
-            payload:input.payload,
+            payload: input.payload,
             idempotencyKey: input.idempotencyKey ?? null,
         }
     })
-    await jobsQueue.add("process-job", {jobId: job.id})
+    await jobsQueue.add("process-job", { jobId: job.id }, {
+        backoff: {
+            type: 'exponential',
+            delay: 1000,
+        },
+        attempts: job.maxAttempts,
+    })
     return job;
 }
